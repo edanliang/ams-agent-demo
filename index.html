@@ -1,0 +1,713 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>腾讯投放助手 · 商家个人代理体验</title>
+<style>
+* { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+html, body { height:100%; }
+body {
+  font-family: -apple-system, "PingFang SC", "Microsoft YaHei", sans-serif;
+  background: linear-gradient(150deg, #1b2440 0%, #2d3561 55%, #3b2f63 100%);
+  color:#fff; display:flex; flex-direction:column; align-items:center;
+  padding: 18px 12px 24px; min-height:100vh;
+}
+.wrap { width:100%; max-width: 460px; }
+
+/* ---------- 通用 ---------- */
+.eyebrow { font-size:12px; letter-spacing:2px; opacity:.75; text-align:center; margin-bottom:8px; }
+h1 { font-size:22px; font-weight:700; text-align:center; line-height:1.4; margin-bottom:10px; }
+.sub { font-size:13px; opacity:.85; text-align:center; line-height:1.7; margin-bottom:18px; }
+
+.btn {
+  width:100%; padding:15px; border:none; border-radius:14px; font-size:16px; font-weight:700;
+  cursor:pointer; background:linear-gradient(135deg,#4facfe,#00f2fe); color:#04324f;
+  box-shadow:0 6px 18px rgba(79,172,254,.35); transition:transform .15s;
+}
+.btn:active { transform:scale(.98); }
+.btn.ghost {
+  background:rgba(255,255,255,.12); color:#fff; border:1px solid rgba(255,255,255,.28);
+  box-shadow:none; font-size:14px; padding:12px; margin-top:10px;
+}
+
+/* ---------- 手机框 ---------- */
+.phone {
+  background:#000; border-radius:30px; padding:9px; margin:0 auto 16px;
+  box-shadow:0 14px 40px rgba(0,0,0,.5); max-width:400px;
+}
+.screen {
+  background:#EDEDED; border-radius:23px; overflow:hidden; position:relative;
+}
+
+/* 微信顶栏 */
+.wx-bar {
+  height:52px; background:#EDEDED; border-bottom:1px solid #dcdcdc;
+  display:flex; align-items:center; padding:0 12px; gap:8px; position:relative;
+}
+.wx-back { font-size:22px; color:#333; line-height:1; }
+.wx-title { flex:1; text-align:center; font-size:16px; font-weight:600; color:#111; }
+.wx-title small { display:block; font-size:10px; font-weight:400; color:#888; margin-top:1px; }
+.wx-more { font-size:20px; color:#333; letter-spacing:1px; }
+
+/* 聊天区 */
+.chat {
+  height: 460px; overflow-y:auto; padding:14px 12px 10px; background:#EDEDED;
+  -webkit-overflow-scrolling:touch;
+}
+.ts { text-align:center; margin:10px 0 12px; }
+.ts span {
+  display:inline-block; font-size:11px; color:#fff; background:rgba(0,0,0,.16);
+  padding:3px 9px; border-radius:4px;
+}
+.msg { display:flex; gap:8px; margin-bottom:14px; align-items:flex-start; }
+.msg.me { flex-direction:row-reverse; }
+.avatar {
+  width:36px; height:36px; border-radius:5px; flex-shrink:0; display:flex;
+  align-items:center; justify-content:center; font-size:14px; color:#fff; font-weight:600;
+}
+.avatar.bot { background:linear-gradient(135deg,#3a7afe,#2f5fe0); }
+.avatar.cust { background:#8a8a8a; }
+.bubble {
+  max-width: 74%; padding:10px 13px; border-radius:6px; font-size:14px;
+  line-height:1.6; color:#111; position:relative; word-break:break-word;
+}
+.msg.bot .bubble { background:#fff; }
+.msg.me .bubble { background:#95EC69; }
+.bubble:after {
+  content:''; position:absolute; top:12px; border:6px solid transparent;
+}
+.msg.bot .bubble:after { left:-11px; border-right-color:#fff; }
+.msg.me .bubble:after { right:-11px; border-left-color:#95EC69; }
+
+.role-tag {
+  font-size:10px; color:#fff; padding:2px 7px; border-radius:4px; margin-bottom:4px;
+  font-weight:600; display:none;
+}
+body.inside .role-tag { display:inline-block; }
+.tag-sales { background:#f39c12; }
+.tag-ops { background:#27ae60; }
+.tag-agent { background:#7c5cff; }
+.hidden { display:none !important; }
+
+/* 卡片消息 */
+.card-msg {
+  background:#fff; border-radius:8px; padding:0; margin:8px 0; overflow:hidden;
+  border:1px solid #ebebeb; max-width:82%;
+}
+.card-hd {
+  background:#f6f7fb; padding:9px 12px; font-size:13px; font-weight:700; color:#2b3a67;
+  border-bottom:1px solid #eee; display:flex; align-items:center; gap:6px;
+}
+.card-bd { padding:11px 12px; font-size:12.5px; color:#333; line-height:1.75; }
+.card-bd .row { display:flex; justify-content:space-between; padding:4px 0; border-bottom:1px dashed #f0f0f0; }
+.card-bd .row:last-child { border:none; }
+.card-bd .row b { font-weight:600; }
+.chip {
+  display:inline-block; background:#eef2ff; color:#3a5bd9; font-size:11px;
+  padding:3px 9px; border-radius:20px; margin:3px 4px 0 0;
+}
+.ok { color:#27ae60; font-weight:600; }
+.warn { color:#e67e22; font-weight:600; }
+
+/* 选项 */
+.opts { padding:6px 12px 10px; background:#EDEDED; }
+.opt {
+  background:#fff; border:1px solid #e2e2e2; border-radius:20px; padding:11px 16px;
+  font-size:13.5px; color:#111; margin-bottom:8px; cursor:pointer; text-align:center;
+  transition:all .15s;
+}
+.opt:active { background:#f0f0f0; transform:scale(.99); }
+
+/* 底部输入框 */
+.wx-input {
+  height:56px; background:#F7F7F7; border-top:1px solid #dcdcdc;
+  display:flex; align-items:center; padding:0 12px; gap:10px;
+}
+.wx-input .ico { font-size:22px; color:#555; width:28px; text-align:center; }
+.wx-input .field {
+  flex:1; background:#fff; border-radius:5px; height:36px; border:1px solid #e0e0e0;
+  display:flex; align-items:center; padding:0 10px; font-size:13px; color:#aaa;
+}
+
+/* 内部视角面板 */
+.memory {
+  background:rgba(255,255,255,.07); border:1px solid rgba(255,255,255,.16);
+  border-radius:14px; padding:14px 16px; margin-bottom:14px; backdrop-filter:blur(6px);
+}
+.memory h3 { font-size:14px; margin-bottom:10px; display:flex; align-items:center; gap:7px; }
+.memory h3 .dot { width:8px; height:8px; border-radius:50%; background:#7c5cff; }
+.mem-sec { margin-bottom:11px; }
+.mem-sec .t { font-size:11px; color:#9fb4ff; font-weight:600; margin-bottom:5px; letter-spacing:.5px; }
+.mem-sec .c { font-size:12.5px; line-height:1.7; color:#e8ecff; }
+.mem-sec .c .k { color:#fff; font-weight:600; }
+.mem-sec .c .none { color:#8891b5; }
+.pill-row { display:flex; flex-wrap:wrap; gap:5px; margin-top:4px; }
+.pill {
+  font-size:11px; padding:3px 9px; border-radius:20px;
+  background:rgba(124,92,255,.22); border:1px solid rgba(124,92,255,.4); color:#dcd6ff;
+}
+.pill.done { background:rgba(39,174,96,.2); border-color:rgba(39,174,96,.45); color:#b9f0cd; }
+
+.mem-toggle {
+  display:flex; align-items:center; justify-content:space-between;
+  background:rgba(255,255,255,.1); border:1px solid rgba(255,255,255,.2);
+  border-radius:12px; padding:11px 14px; margin-bottom:12px; font-size:13.5px; cursor:pointer;
+}
+.switch { width:42px; height:24px; border-radius:20px; background:rgba(255,255,255,.25); position:relative; transition:.2s; }
+.switch.on { background:#7c5cff; }
+.switch i {
+  position:absolute; top:3px; left:3px; width:18px; height:18px; border-radius:50%;
+  background:#fff; transition:.2s;
+}
+.switch.on i { left:21px; }
+
+/* ---------- 现状屏 ---------- */
+.now-shot { max-height: 430px; overflow-y:auto; -webkit-overflow-scrolling:touch; }
+.now-shot img { width:100%; display:block; }
+.pains { margin:14px 0 16px; }
+.pain {
+  background:rgba(255,90,90,.12); border-left:3px solid #ff6b6b; border-radius:0 8px 8px 0;
+  padding:10px 13px; font-size:13px; margin-bottom:8px; color:#ffd9d9; line-height:1.6;
+}
+.pain b { color:#fff; }
+
+/* ---------- 结束屏 ---------- */
+.finish { text-align:center; padding:20px 0; }
+.finish .big { font-size:26px; font-weight:700; margin-bottom:10px; }
+.finish .txt { font-size:14px; opacity:.9; line-height:1.8; margin-bottom:20px; }
+.compare { display:grid; gap:10px; margin-bottom:18px; text-align:left; }
+.cmp { border-radius:12px; padding:13px 15px; font-size:13px; line-height:1.7; }
+.cmp.old { background:rgba(255,107,107,.14); border:1px solid rgba(255,107,107,.35); }
+.cmp.new { background:rgba(39,174,96,.14); border:1px solid rgba(39,174,96,.4); }
+.cmp .h { font-weight:700; margin-bottom:5px; font-size:13.5px; }
+.cmp.old .h { color:#ffb3b3; }
+.cmp.new .h { color:#a8f0c4; }
+
+.foot { text-align:center; font-size:11px; opacity:.55; margin-top:16px; line-height:1.8; }
+
+/* 打字动画 */
+.typing span {
+  display:inline-block; width:6px; height:6px; border-radius:50%; background:#bbb;
+  margin:0 2px; animation:bounce 1.2s infinite;
+}
+.typing span:nth-child(2){ animation-delay:.2s; }
+.typing span:nth-child(3){ animation-delay:.4s; }
+@keyframes bounce { 0%,60%,100%{transform:translateY(0);} 30%{transform:translateY(-5px);} }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <!-- ============ 屏1：现状 ============ -->
+  <div id="s1">
+    <div class="eyebrow">腾讯投放助手 · 现状</div>
+    <h1>今天的投放助手<br>只能「回答」，还不能「做事」</h1>
+    <p class="sub">下面是真实的一线群聊截图。客户遇到问题、遇到报错，助手只能被动回应。</p>
+
+    <div class="phone">
+      <div class="screen">
+        <div class="wx-bar">
+          <span class="wx-back">‹</span>
+          <span class="wx-title">腾讯投放助手<small>@腾讯营销中心</small></span>
+          <span class="wx-more">···</span>
+        </div>
+        <div class="now-shot"><img src="assets/status-quo.png" alt="现状截图"></div>
+      </div>
+    </div>
+
+    <div class="pains">
+      <div class="pain"><b>① 报错只能看着</b>：客户发来「日预算调整额度不能小于…」的报错，助手接不住，也没法帮他改。</div>
+      <div class="pain"><b>② 非工作时间断档</b>：「现在是非工作时间，看到留言会尽快回复您哦」——生意不等人。</div>
+      <div class="pain"><b>③ 只答不问</b>：客户说「测试」，助手就等指令；没人主动去理解他的生意、目标和预算。</div>
+    </div>
+
+    <button class="btn" onclick="go(2)">体验「商家个人代理」模式 →</button>
+    <div class="foot">下一步：你会扮演一位<b>刚被加到微信、还没开户</b>的商家，<br>看个人代理怎么从「认识你」开始，一路帮你开完户、投出第 1 单。</div>
+  </div>
+
+  <!-- ============ 屏2：聊天体验 ============ -->
+  <div id="s2" class="hidden">
+    <div class="eyebrow">商家个人代理 · 体验中</div>
+
+    <div class="phone">
+      <div class="screen">
+        <div class="wx-bar">
+          <span class="wx-back">‹</span>
+          <span class="wx-title">腾讯投放助手<small>鲜果时光 · 服务中</small></span>
+          <span class="wx-more">···</span>
+        </div>
+        <div class="chat" id="chat"></div>
+        <div class="opts" id="opts"></div>
+        <div class="wx-input">
+          <span class="ico">🎙</span>
+          <span class="field">按住 说话</span>
+          <span class="ico">😊</span>
+          <span class="ico">＋</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="mem-toggle" onclick="toggleMem()">
+      <span>🔍 内部视角：看两个机器人如何分工</span>
+      <span class="switch" id="sw"><i></i></span>
+    </div>
+
+    <div class="memory hidden" id="mem">
+      <h3><span class="dot"></span>商家个人代理 · 共享层</h3>
+      <div class="mem-sec">
+        <div class="t">商家身份</div>
+        <div class="c" id="m-id"><span class="none">尚未识别</span></div>
+      </div>
+      <div class="mem-sec">
+        <div class="t">客户理解（销售机器人写入）</div>
+        <div class="c" id="m-cust"><span class="none">尚未建立</span></div>
+      </div>
+      <div class="mem-sec">
+        <div class="t">经营理解（运营机器人写入）</div>
+        <div class="c" id="m-biz"><span class="none">尚未建立</span></div>
+      </div>
+      <div class="mem-sec">
+        <div class="t">权限体系</div>
+        <div class="c" id="m-perm"><span class="none">未授权</span></div>
+      </div>
+      <div class="mem-sec">
+        <div class="t">已挂载 Skills</div>
+        <div class="pill-row" id="m-skills"><span class="none" style="font-size:12px;color:#8891b5">—</span></div>
+      </div>
+      <div class="mem-sec">
+        <div class="t">行动记录</div>
+        <div class="pill-row" id="m-acts"><span class="none" style="font-size:12px;color:#8891b5">—</span></div>
+      </div>
+      <div class="mem-sec">
+        <div class="t">效果反馈</div>
+        <div class="c" id="m-fb"><span class="none">暂无</span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============ 屏3：结束 ============ -->
+  <div id="s3" class="hidden">
+    <div class="finish">
+      <div class="eyebrow">体验完成</div>
+      <div class="big">你只聊了一个「人」<br>背后是两支队伍</div>
+      <div class="txt">
+        全程你只跟「腾讯投放助手」对话。<br>
+        但<b>销售机器人</b>在理解你是谁、要什么；<br>
+        <b>运营机器人</b>在把事做出来；<br>
+        两者共享同一份<b>商家记忆</b>——这才是「个人代理」。
+      </div>
+    </div>
+
+    <div class="compare">
+      <div class="cmp old">
+        <div class="h">❌ 现状：被动答疑</div>
+        你问什么我答什么；报错接不住；非工作时间断档；没人知道你的生意目标和预算。
+      </div>
+      <div class="cmp new">
+        <div class="h">✅ 个人代理：懂你 + 帮你做</div>
+        从加好友就主动理解你的生意与顾虑 → 说服并陪你开户 → 生成搭建草稿 → 你确认即创建 → 授权内自动调优 → 沉淀经营经验，下次更懂你。
+      </div>
+    </div>
+
+    <div class="memory">
+      <h3><span class="dot"></span>本次沉淀的商家记忆</h3>
+      <div class="mem-sec"><div class="t">客户理解</div><div class="c" id="f-cust"></div></div>
+      <div class="mem-sec"><div class="t">经营理解</div><div class="c" id="f-biz"></div></div>
+      <div class="mem-sec"><div class="t">下次对话它会记得</div><div class="c">「鲜果时光，生鲜水果，新客期已跑正，朋友圈+短视频组合有效，已授权自动调优」——<span class="k">不用你再说一遍</span>。</div></div>
+    </div>
+
+    <button class="btn" onclick="restart()">再体验一次</button>
+    <button class="btn ghost" onclick="go(1)">← 回到现状对比</button>
+    <div class="foot">腾讯投放助手 · 商家个人代理 概念体验</div>
+  </div>
+
+</div>
+
+<script>
+/* ================= 状态 ================= */
+const S = {
+  identity: null, cust: {}, biz: {}, perm: null,
+  skills: ["开户引导"], acts: [], fb: null,
+  inside: false
+};
+
+const chat = document.getElementById('chat');
+const optsBox = document.getElementById('opts');
+
+/* ================= 工具 ================= */
+function scrollBottom(){ chat.scrollTop = chat.scrollHeight; }
+
+function ts(text){
+  const d = document.createElement('div');
+  d.className = 'ts'; d.innerHTML = `<span>${text}</span>`;
+  chat.appendChild(d); scrollBottom();
+}
+
+function addBot(html, role){
+  const w = document.createElement('div');
+  w.className = 'msg bot';
+  const tag = role
+    ? `<div><span class="role-tag ${role==='销售机器人'?'tag-sales':(role==='运营机器人'?'tag-ops':'tag-agent')}">${role}</span></div>` : '';
+  w.innerHTML = `
+    <div class="avatar bot">腾</div>
+    <div>
+      ${tag}
+      <div class="bubble">${html}</div>
+    </div>`;
+  chat.appendChild(w); scrollBottom();
+}
+
+function addCard(title, body, role){
+  const w = document.createElement('div');
+  w.className = 'msg bot';
+  const tag = role
+    ? `<div><span class="role-tag ${role==='销售机器人'?'tag-sales':'tag-ops'}">${role}</span></div>` : '';
+  w.innerHTML = `
+    <div class="avatar bot">腾</div>
+    <div style="max-width:82%">
+      ${tag}
+      <div class="card-msg">
+        <div class="card-hd">📄 ${title}</div>
+        <div class="card-bd">${body}</div>
+      </div>
+    </div>`;
+  chat.appendChild(w); scrollBottom();
+}
+
+function addMe(text){
+  const w = document.createElement('div');
+  w.className = 'msg me';
+  w.innerHTML = `<div class="avatar cust">我</div><div class="bubble">${text}</div>`;
+  chat.appendChild(w); scrollBottom();
+}
+
+function typing(){
+  const w = document.createElement('div');
+  w.className = 'msg bot'; w.id = 'tp';
+  w.innerHTML = `<div class="avatar bot">腾</div><div class="bubble"><span class="typing"><span></span><span></span><span></span></span></div>`;
+  chat.appendChild(w); scrollBottom();
+}
+function untyping(){ const e=document.getElementById('tp'); if(e) e.remove(); }
+
+function setOpts(list){
+  optsBox.innerHTML = '';
+  list.forEach(o=>{
+    const d = document.createElement('div');
+    d.className = 'opt'; d.textContent = o.t;
+    d.onclick = ()=>{ optsBox.innerHTML=''; addMe(o.t); o.f(); };
+    optsBox.appendChild(d);
+  });
+  scrollBottom();
+}
+
+const SPEED = 0.78;   // 节奏系数：越小越快
+async function botTurn(steps){
+  // steps: [{html, role, card:{title,body}, delay}]
+  for (const s of steps){
+    typing();
+    await new Promise(r=>setTimeout(r, (s.delay || 900) * SPEED));
+    untyping();
+    if (s.card) addCard(s.card.title, s.card.body, s.role);
+    else addBot(s.html, s.role);
+    await new Promise(r=>setTimeout(r, 240 * SPEED));
+  }
+}
+
+/* ================= 记忆面板 ================= */
+function renderMem(){
+  document.getElementById('m-id').innerHTML = S.identity
+    ? `<span class="k">${S.identity}</span>` : '<span class="none">尚未识别</span>';
+
+  const c = S.cust;
+  document.getElementById('m-cust').innerHTML = Object.keys(c).length
+    ? Object.entries(c).map(([k,v])=>`${k}：<span class="k">${v}</span>`).join('<br>')
+    : '<span class="none">尚未建立</span>';
+
+  const b = S.biz;
+  document.getElementById('m-biz').innerHTML = Object.keys(b).length
+    ? Object.entries(b).map(([k,v])=>`${k}：<span class="k">${v}</span>`).join('<br>')
+    : '<span class="none">尚未建立</span>';
+
+  document.getElementById('m-perm').innerHTML = S.perm
+    ? `<span class="k">${S.perm}</span>` : '<span class="none">未授权</span>';
+
+  document.getElementById('m-skills').innerHTML =
+    S.skills.map(s=>`<span class="pill">${s}</span>`).join('');
+
+  document.getElementById('m-acts').innerHTML = S.acts.length
+    ? S.acts.map(a=>`<span class="pill done">✓ ${a}</span>`).join('')
+    : '<span style="font-size:12px;color:#8891b5">—</span>';
+
+  document.getElementById('m-fb').innerHTML = S.fb
+    ? S.fb : '<span class="none">暂无</span>';
+}
+
+function toggleMem(){
+  S.inside = !S.inside;
+  document.body.classList.toggle('inside', S.inside);
+  document.getElementById('sw').classList.toggle('on', S.inside);
+  document.getElementById('mem').classList.toggle('hidden', !S.inside);
+  renderMem();
+  if (S.inside && !document.getElementById('hint')) {
+    const h = document.createElement('div');
+    h.id = 'hint';
+    h.style.cssText = 'font-size:11.5px;color:#9fb4ff;text-align:center;margin:-4px 0 10px;line-height:1.6';
+    h.innerHTML = '已开启内部视角 ↑ 橙色＝销售机器人，绿色＝运营机器人<br>（这是内部视角，客户在微信里看不到这些标签）';
+    document.getElementById('mem').parentNode.insertBefore(h, document.getElementById('mem'));
+  } else if (!S.inside) {
+    const h = document.getElementById('hint'); if (h) h.remove();
+  }
+}
+
+/* ================= 剧本 ================= */
+let started = false;
+
+/* ---------- 阶段 A：刚加好友 → 说服开户（销售机器人） ---------- */
+async function start(){
+  if (started) return; started = true;
+  ts('10月19日 上午9:30');
+  S.acts.push('加好友 · 建立连接');
+  await botTurn([
+    { html:'您好，我是腾讯投放助手 👋<br>刚通过您的好友申请，先跟您打个招呼～', role:'销售机器人' },
+    { html:'看到您是从「生鲜商家交流群」加我的——<br>您是做<b>水果生鲜</b>生意的吗？', role:'销售机器人', delay:1100 }
+  ]);
+  S.cust['客户来源'] = '生鲜商家交流群';
+  S.cust['推测类目'] = '水果生鲜（待确认）';
+  S.acts.push('写入初步客户理解');
+  S.skills.push('潜客识别');
+  renderMem();
+  setOpts([
+    { t:'是的，我做应季水果', f: s2 },
+    { t:'对，卖水果的，你怎么知道？', f: s2 },
+    { t:'我在了解，还没想好要不要投', f: s2 }
+  ]);
+}
+
+async function s2(){
+  S.identity = '鲜果时光（生鲜水果 · 潜客）';
+  S.cust['行业类目'] = '生鲜水果 · 应季';
+  S.cust['客户阶段'] = '潜客（未开户）';
+  S.acts.push('确认类目与阶段');
+  renderMem();
+
+  await botTurn([
+    { html:'明白了 ✅ 已记下：您做<b>应季水果</b>，目前<b>还没开户</b>。', role:'销售机器人' },
+    { html:'先说说我对您生意的理解——您这类生意，核心不是慢慢来，而是<b>这批货要在坏掉之前卖完</b>。所以您要的不是"让更多人知道"，而是<b>短时间内把货推给刚好想吃水果的人</b>。', role:'销售机器人', delay:1300 },
+    { html:'您现在最大的顾虑是哪一块？我针对性地跟您说。', role:'销售机器人', delay:1100 }
+  ]);
+  S.skills.push('客户理解建模');
+  renderMem();
+  setOpts([
+    { t:'没投过广告，怕投了没效果、白花钱', f: s3 },
+    { t:'我一个人弄，不懂操作也没素材', f: s3 },
+    { t:'周边就那么些人，想卖给更远的地方', f: s3 }
+  ]);
+}
+
+async function s3(){
+  S.cust['主要顾虑'] = '怕白花钱 / 不懂操作 / 想扩圈';
+  S.acts.push('识别顾虑并应答');
+  renderMem();
+
+  await botTurn([
+    { html:'这几个顾虑都很常见，我一个一个跟您说清楚 👇', role:'销售机器人', delay:900 },
+    { role:'销售机器人', delay:1200, card:{
+      title:'针对您的三点回应',
+      body:`
+        <div class="row"><span>怕白花钱</span><b>可从 <span class="ok">100 元/天</span> 小额测试开始，先看能不能出单；跑正再加，跑不通就停</b></div>
+        <div class="row"><span>不懂操作</span><b>您不用自己搭：开户后我直接生成计划草稿，人群 / 素材 / 出价都选好，您确认就能跑</b></div>
+        <div class="row"><span>想扩圈</span><b>能把货推给周边 5–10 公里、对生鲜感兴趣的人，不只您店门口</b></div>
+        <div style="margin-top:8px" class="ok">新客期有行业均值做参考，成本高低一眼看得出</div>`
+    }},
+    { html:'如果愿意试，我先帮您把户开了——开户本身不花钱，资料齐的话大概 10 分钟。', role:'销售机器人', delay:1200 }
+  ]);
+  S.skills.push('开户引导');
+  renderMem();
+  setOpts([
+    { t:'那我试试，怎么开户？', f: s4 },
+    { t:'开户要准备什么资料？', f: s4 },
+    { t:'我再考虑一下', f: s4 }
+  ]);
+}
+
+async function s4(){
+  S.acts.push('引导开户');
+  await botTurn([
+    { html:'好的，开户很简单 👇', role:'销售机器人' },
+    { role:'销售机器人', delay:1100, card:{
+      title:'开户三步（约 10 分钟）',
+      body:`
+        <div class="row"><span>① 主体认证</span><b>营业执照 / 个体户执照</b></div>
+        <div class="row"><span>② 行业资质</span><b>食品经营相关（生鲜类目）</b></div>
+        <div class="row"><span>③ 充值</span><b>首次建议 500 元起，随用随充</b></div>
+        <div style="margin-top:8px"><span class="chip">我全程陪您</span><span class="chip">卡住随时问我</span></div>`
+    }},
+    { html:'资料您先备着，我一步步提醒。开好户跟我说一声，我接着帮您搭第一版计划。', role:'销售机器人', delay:1200 }
+  ]);
+
+  ts('当天 上午9:52');
+  await new Promise(r=>setTimeout(r,600));
+  S.identity = '鲜果时光（生鲜水果 · 新开户）';
+  S.cust['客户阶段'] = '新开户 · 冷启动期';
+  S.acts.push('开户完成');
+  renderMem();
+
+  await botTurn([
+    { html:'检测到您<b>已完成开户</b> 🎉 账号现在可以投放了。', role:'销售机器人' },
+    { html:'咱们接着来——您近期最想要的结果是什么？每天大概准备投多少？', role:'销售机器人', delay:1200 }
+  ]);
+  S.skills.push('经营目标采集');
+  renderMem();
+  setOpts([
+    { t:'想先出单，每天预算 100 元左右', f: s5 },
+    { t:'先测测看，每天 50 元', f: s5 },
+    { t:'我想做品牌曝光，每天 500 元', f: s5 }
+  ]);
+}
+
+async function s5(){
+  S.cust['经营目标'] = '出单（转化）';
+  S.cust['日预算'] = '约 100 元';
+  S.cust['困难预判'] = '无历史数据 / 素材不足 / 出价无参考';
+  S.acts.push('确认目标与预算');
+  renderMem();
+
+  await botTurn([
+    { html:'收到 ✅ 目标：<b>先出单</b>；日预算：<b>约 100 元</b>。', role:'销售机器人' },
+    { html:'我的建议是：<b>朋友圈 + 短视频</b>双版位小额测试，先把「能不能出单」验证出来，跑正了再加预算。', role:'销售机器人', delay:1200 },
+    { html:'要我现在直接帮您<b>搭一版计划草稿</b>吗？', role:'销售机器人', delay:900 }
+  ]);
+  S.skills.push('方案推荐');
+  renderMem();
+  setOpts([
+    { t:'好，帮我搭一版', f: o1 },
+    { t:'先看看具体怎么投', f: o1 },
+    { t:'我再想想', f: o1 }
+  ]);
+}
+
+/* ---------- 阶段 B：运营机器人接手 ---------- */
+
+async function o1(){
+  // 交接给运营机器人
+  S.biz['推荐方案'] = '朋友圈 + 短视频 · 小额测试';
+  S.acts.push('生成搭建草稿');
+  S.skills.push('广告搭建','人群选择','素材生成');
+  renderMem();
+
+  await botTurn([
+    { html:'好的，已按生鲜类目的高转化组合，为您生成了一版<b>广告搭建草稿</b> 👇', role:'运营机器人' },
+    { role:'运营机器人', delay:1200, card:{
+      title:'广告搭建草稿 · 待确认',
+      body:`
+        <div class="row"><span>投放版位</span><b>朋友圈 + 短视频</b></div>
+        <div class="row"><span>目标人群</span><b>25-45 岁 · 生鲜兴趣 · 广州及周边</b></div>
+        <div class="row"><span>素材</span><b>3 条（AI 生成）</b></div>
+        <div class="row"><span>出价方式</span><b>按目标成本出价</b></div>
+        <div class="row"><span>日预算</span><b>100 元</b></div>
+        <div style="margin-top:8px">
+          <span class="chip">产地直发</span><span class="chip">开箱实拍</span><span class="chip">限时鲜采</span>
+        </div>`
+    }},
+    { html:'人群和素材我先选好了。您可以<b>直接确认创建</b>，也可以让我调整。', role:'运营机器人', delay:1100 }
+  ]);
+  renderMem();
+  setOpts([
+    { t:'确认创建', f: o2 },
+    { t:'素材我想换一下', f: o2 },
+    { t:'预算改成 80', f: o2 }
+  ]);
+}
+
+async function o2(){
+  S.biz['计划状态'] = '已创建 · 审核中';
+  S.acts.push('创建投放计划');
+  renderMem();
+
+  await botTurn([
+    { html:'已创建计划 ✅<br>计划状态：<b>审核中</b>，通常 30 分钟内过审。', role:'运营机器人' },
+    { html:'还有一件事——您不在的时候，我也可以帮您盯账户。<br>是否授权我在以下范围内<b>自动调优</b>？', role:'运营机器人', delay:1200 },
+    { role:'运营机器人', delay:1100, card:{
+      title:'授权范围（可随时收回）',
+      body:`
+        <div class="row"><span class="ok">✓ 出价调整</span><b>目标成本 ±20% 内</b></div>
+        <div class="row"><span class="ok">✓ 预算控制</span><b>单日不超过 120 元</b></div>
+        <div class="row"><span class="ok">✓ 自动关停</span><b>连续 3 天 0 转化广告</b></div>
+        <div class="row"><span class="warn">✗ 改商品 / 换落地页</span><b>仍需您确认</b></div>`
+    }}
+  ]);
+  S.skills.push('自动调优','效果复盘');
+  renderMem();
+  setOpts([
+    { t:'授权，你看着办', f: o3 },
+    { t:'先不用，我自己看', f: o3 }
+  ]);
+}
+
+async function o3(){
+  S.perm = '已授权：出价±20% / 日预算≤120 / 自动关停低效';
+  S.acts.push('开启自动调优');
+  renderMem();
+
+  await botTurn([
+    { html:'已开启自动调优 🔒 权限已写入您的商家档案。', role:'运营机器人' },
+    { html:'三天后我会把结果同步给您。', role:'运营机器人', delay:900 }
+  ]);
+
+  ts('三天后 上午9:40');
+  await new Promise(r=>setTimeout(r,500));
+
+  S.biz['调优动作'] = '下调出价 2 次 / 关停 1 条低效广告';
+  S.acts.push('执行调优','效果复盘');
+  S.fb = '消耗 298 元 · 订单 7 单 · 下单成本 42.6 元（新客均值约 60 元）';
+  renderMem();
+
+  await botTurn([
+    { html:'早上好，这三天跑下来，跟您同步结果 👇', role:'运营机器人' },
+    { role:'运营机器人', delay:1200, card:{
+      title:'投放效果（近 3 天）',
+      body:`
+        <div class="row"><span>总消耗</span><b>298 元</b></div>
+        <div class="row"><span>订单数</span><b>7 单</b></div>
+        <div class="row"><span>下单成本</span><b class="ok">42.6 元</b></div>
+        <div class="row"><span>新客期行业均值</span><b>约 60 元</b></div>
+        <div style="margin-top:8px" class="ok">已跑正 ✅ 建议把日预算提到 150-200 元</div>`
+    }},
+    { html:'期间我自动做了 2 次出价下调、关停了 1 条连三天没转化的广告。', role:'运营机器人', delay:1200 },
+    { html:'这次经验我也沉淀下来了：<b>「生鲜 · 朋友圈+短视频 · 产地直发素材」</b>在您的新客期转化最好，下次直接复用。', role:'运营机器人', delay:1300 }
+  ]);
+  S.biz['沉淀经验'] = '生鲜·朋友圈+短视频·产地直发素材 → 新客期最优';
+  renderMem();
+
+  await new Promise(r=>setTimeout(r,600));
+  document.getElementById('f-cust').innerHTML =
+    Object.entries(S.cust).map(([k,v])=>`${k}：<span class="k">${v}</span>`).join('<br>');
+  document.getElementById('f-biz').innerHTML =
+    Object.entries(S.biz).map(([k,v])=>`${k}：<span class="k">${v}</span>`).join('<br>');
+  go(3);
+}
+
+/* ================= 屏切换 ================= */
+function go(n){
+  [1,2,3].forEach(i=>document.getElementById('s'+i).classList.toggle('hidden', i!==n));
+  window.scrollTo({top:0, behavior:'smooth'});
+  if (n===2 && !started) start();
+}
+
+function restart(){
+  // 重置
+  Object.assign(S, {
+    identity:null, cust:{}, biz:{}, perm:null,
+    skills:["潜客识别"], acts:[], fb:null
+  });
+  chat.innerHTML=''; optsBox.innerHTML='';
+  started = false;
+  document.getElementById('mem').classList.add('hidden');
+  document.getElementById('sw').classList.remove('on');
+  S.inside = false;
+  go(2);
+}
+</script>
+</body>
+</html>
